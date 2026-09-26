@@ -14,15 +14,15 @@ const pool = new Pool({
   user: "postgres",
   host: "localhost",
   database: "attendance_demo",
-  password: "Canenjoroge18",
+  password: "Githuthu12",
   port: 5432,
 });
 
 const authenticateJWT = (req: Request, res: Response, next: any) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.sendStatus(401).json({ error: "Unauthorized" });
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403).json({ error: "Forbidden" });
+    if (err) return res.status(403).json({ error: "Forbidden" });
     (req as any).user = user;
     next();
   });
@@ -114,9 +114,15 @@ const seedDB = async () => {
         const teachers = (await pool.query("SELECT id FROM users WHERE role = 'Teacher' ORDER BY id")).rows;
         const students = (await pool.query("SELECT id FROM users WHERE role = 'Student' ORDER BY id")).rows;
 
-        const c1 = await pool.query("INSERT INTO classes (name, teacher_id) VALUES ('Math 101', $1) RETURNING id", [teachers[0].id])).rows[0].id;
-        const c2 = await pool.query("INSERT INTO classes (name, teacher_id) VALUES ('Science 101', $1) RETURNING id", [teachers[0].id])).rows[0].id;
-        const c3 = await pool.query("INSERT INTO classes (name, teacher_id) VALUES ('History 101', $1) RETURNING id", [teachers[1].id])).rows[0].id;
+        const c1 = (
+          await pool.query("INSERT INTO classes (name, teacher_id) VALUES ('Math 101', $1) RETURNING id", [teachers[0].id])
+        ).rows[0].id;
+        const c2 = (
+          await pool.query("INSERT INTO classes (name, teacher_id) VALUES ('Science 101', $1) RETURNING id", [teachers[0].id])
+        ).rows[0].id;
+        const c3 = (
+          await pool.query("INSERT INTO classes (name, teacher_id) VALUES ('History 101', $1) RETURNING id", [teachers[1].id])
+        ).rows[0].id;
 
         for (let i = 0; i < 5; i++) await pool.query("INSERT INTO class_students (class_id, student_id) VALUES ($1, $2)", [c1, students[i].id]);
         for (let i = 5; i < 10; i++) await pool.query("INSERT INTO class_students (class_id, student_id) VALUES ($1, $2)", [c2, students[i].id]);
